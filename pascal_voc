@@ -1,0 +1,221 @@
+import os
+import xml.dom
+import xml.etree.ElementTree as ET
+from collections import Counter
+def Change_Lable_Name(inputpath,Old_Name,New_Name):
+    files=os.listdir(inputpath)
+    for file in files:
+        #pfile 指 path + file 带路径的文件
+        pfile=os.path.join(inputpath,file)
+        if not os.path.isdir(pfile):#判断不是目录
+            if file.endswith('xml'):#判断是xml文件
+
+                tree=ET.parse(pfile)
+                annotation=tree.getroot()
+                objects=annotation.findall('object')
+                for a_object in objects:
+                    for name in a_object.findall('name'):
+                        if(name.text==Old_Name):      #填写旧名字
+                            name.text=New_Name        #填写新名字
+                        # name.text=name.text.lower()     所有名字变小写
+                            tree.write(pfile,encoding='utf-8')
+                            print(file)
+
+
+            else:
+                raise ValueError(file+'不是xml文件')
+        else:
+            raise ValueError(pfile+'是目录')
+
+#将英文括号作为分隔符，切记路径中不能出现英文括号
+def Change_Image_Name(inputpath,add_number):
+    files=os.listdir(inputpath)
+    for file in files:
+        # pfile 指 path + file 带路径的文件
+        pfile = os.path.join(inputpath, file)
+        if not os.path.isdir(pfile):  # 判断不是目录
+            if file.endswith('xml'):  # 判断是xml文件
+
+              tree=ET.parse(pfile)
+              annotation=tree.getroot()
+              filename=annotation.find('filename')
+
+              #进行数字提取，修改
+              number_pre0=(filename.text.split('('))[1]
+              number_pre1=number_pre0.split(')')[0]
+              number_pre=int(number_pre1)
+              number_after=number_pre+add_number
+
+              filename_after=str(number_after).zfill(6)+'.jpg'
+              filename.text=filename_after #修改完毕文件名称：即<filename>部分
+
+            #开始修改path部分
+              path=annotation.find('path')
+              path_in_path=os.path.split(path.text)[0]
+              new_path=os.path.join(path_in_path,filename_after)
+              path.text=new_path   #修改完毕<path>部分
+
+              tree.write(pfile,encoding="utf-8")
+              print(file)
+
+
+
+            else:
+                raise ValueError(file + '不是xml文件')
+        else:
+            raise ValueError(pfile + '是目录')
+
+def Change_Image_Path(inputpath,new_path_in_path):
+    files=os.listdir(inputpath)
+    for file in files:
+        # pfile 指 path + file 带路径的文件
+        pfile = os.path.join(inputpath, file)
+        if not os.path.isdir(pfile):  # 判断不是目录
+            if file.endswith('xml'):  # 判断是xml文件
+
+              tree=ET.parse(pfile)
+              annotation=tree.getroot()
+              path=annotation.find('path')
+              filename=os.path.split(path.text)[1]
+              new_path=os.path.join(new_path_in_path,filename)
+              path.text=new_path
+
+              tree.write(pfile,encoding="utf-8")
+              print(file)
+
+
+
+            else:
+                raise ValueError(file + '不是xml文件')
+        else:
+            raise ValueError(pfile + '是目录')
+
+
+def Change_Image_Folder(inputpath,new_folder):
+    files = os.listdir(inputpath)
+    for file in files:
+        # pfile 指 path + file 带路径的文件
+        pfile = os.path.join(inputpath, file)
+        if not os.path.isdir(pfile):  # 判断不是目录
+            if file.endswith('xml'):  # 判断是xml文件
+
+                tree=ET.parse(pfile)
+                annotation=tree.getroot()
+                folder=annotation.find('folder')
+                folder.text=new_folder
+
+                tree.write(pfile, encoding="utf-8")
+                print(file)
+
+
+
+            else:
+                raise ValueError(file + '不是xml文件')
+        else:
+            raise ValueError(pfile + '是目录')
+
+
+def Count(inputpath):
+    category=[]
+    files=os.listdir(inputpath)
+    for file in files:
+        # pfile 指 path + file 带路径的文件
+        pfile = os.path.join(inputpath, file)
+        if not os.path.isdir(pfile):  # 判断不是目录
+            if file.endswith('xml'):  # 判断是xml文件
+
+                tree=ET.parse(pfile)
+                annotation=tree.getroot()
+                objects=annotation.findall('object')
+                for a_object in objects:
+                    for name in a_object.findall('name'):
+                        category+=[name.text]
+                print(file)
+
+            else:
+                raise ValueError(file + '不是xml文件')
+        else:
+            raise ValueError(pfile + '是目录')
+
+    counter=Counter(category)
+    print(counter)
+
+def Change_File_Name_jpg(inputpath,add_number):
+   files=os.listdir(inputpath)
+   for file in files:
+       pfile=os.path.join(inputpath,file)
+       if os.path.isfile(pfile):
+           # 进行数字提取，修改
+           before_number = (file.split('('))
+           # prefix=before_number[0]+'('
+           after_number =before_number[1].split(')')
+           number_pre1=after_number[0]
+           # suffix=')'+after_number[1]
+           number_pre = int(number_pre1)
+           number_after = number_pre + add_number
+
+           file_after=str(number_after).zfill(6)+'.jpg'
+           # path_after=os.path.join(inputpath,file_after)
+           path_after=os.path.join(r'F:\data\JPEGImages',file_after)
+           os.rename(pfile,path_after)
+           print(file_after)
+       else:
+           raise ValueError(pfile+'不是文件')
+
+def Change_File_Name_xml(inputpath,add_number):
+   files=os.listdir(inputpath)
+   for file in files:
+       pfile=os.path.join(inputpath,file)
+       if os.path.isfile(pfile):
+           # 进行数字提取，修改
+           before_number = (file.split('('))
+           # prefix=before_number[0]+'('
+           after_number =before_number[1].split(')')
+           number_pre1=after_number[0]
+           # suffix=')'+after_number[1]
+           number_pre = int(number_pre1)
+           number_after = number_pre + add_number
+
+           file_after=str(number_after).zfill(6)+'.xml'
+           # path_after=os.path.join(inputpath,file_after)
+           path_after=os.path.join(r'F:\data\Annotations',file_after)
+           os.rename(pfile,path_after)
+           print(file_after)
+       else:
+           raise ValueError(pfile+'不是文件')
+
+def Test(inputpath):
+    files = os.listdir(inputpath)
+    for file in files:
+        # pfile 指 path + file 带路径的文件
+        pfile = os.path.join(inputpath, file)
+        if not os.path.isdir(pfile):  # 判断不是目录
+            if file.endswith('xml'):  # 判断是xml文件
+
+               tree=ET.parse(pfile)
+               annotation=tree.getroot()
+               path=annotation.find('path')
+               if os.path.isfile(path.text):
+                   print(os.path.split(path.text)[1])
+               else:
+                   raise ValueError(path.text+'不存在')
+
+            else:
+                raise ValueError(file + '不是xml文件')
+        else:
+            raise ValueError(pfile + '是目录')
+
+if __name__ =='__main__':
+    # add=int(input('输入数字'))
+    # jpg=input('输入图片路径')
+    # xml=input('输入注释路径')
+    # Change_File_Name_jpg(jpg,add)
+    # Change_Image_Name(xml,add)
+    # Change_Image_Path(xml,r'F:\data\JPEGImages')
+    # Change_File_Name_xml(xml,add)
+    # Test(r'F:\data\Annotations')
+
+
+    # Count(r'F:\data\Annotations')
+    # Change_Lable_Name(r'F:\data\Annotations','Peach___healthyd','Peach___healthy')
+    Change_Image_Folder(r'F:\data\Annotations','VOC2007')
